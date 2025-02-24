@@ -355,7 +355,7 @@ void editCompanyByCapital(IndexCapital* indexArray, double capital) {
     cout << "Компания с указанной капитализацией не найдена.\n";
 }
 
-void yearRecursive(IndexYear* indexArray, int left, int right, int year) {
+void yearRecursiveSearch(IndexYear* indexArray, int left, int right, int year) {
     if (left > right) {
         cout << "Компания с указанным годом основания не найдена.\n";
         return;
@@ -368,22 +368,22 @@ void yearRecursive(IndexYear* indexArray, int left, int right, int year) {
     }
 
     else if (indexArray[mid].year > year) {
-        yearRecursive(indexArray, left, mid - 1, year);
+        yearRecursiveSearch(indexArray, left, mid - 1, year); // Вызов для левой части массива
     }
 
     else {
-        yearRecursive(indexArray, mid + 1, right, year);
+        yearRecursiveSearch(indexArray, mid + 1, right, year); // Вызов для правой части массива.
     }
 }
 
-void capitalIterative(IndexCapital* indexArray, double capital) {
+void capitalIterativeSearch(IndexCapital* indexArray, double capital) {
     int left = 0;
     int right = currentSize - 1;
 
     while (left <= right) {
         int mid = left + (right - left) / 2; // Находим середину
 
-        if (indexArray[mid].capital == capital) { //Если найден - выводим
+        if (indexArray[mid].capital == capital) { // Если найден - выводим
             cout << "Компания с капитализацией " << capital << " найдена:\n";
             printLaptop(laptops[indexArray[mid].recordIndex]);
             return;
@@ -556,7 +556,7 @@ int main() {
 
                 IndexYear indexArray[maxSize];
                 buildIndexInt(indexArray);
-                yearRecursive(indexArray, 0, currentSize - 1, year);
+                yearRecursiveSearch(indexArray, 0, currentSize - 1, year);
                 break;
             }
         case 8:
@@ -572,7 +572,7 @@ int main() {
 
                 IndexCapital indexArray[maxSize];
                 buildIndexDoubleDown(indexArray);
-                capitalIterative(indexArray, capital);
+                capitalIterativeSearch(indexArray, capital);
                 break;
             }
         case 9:
