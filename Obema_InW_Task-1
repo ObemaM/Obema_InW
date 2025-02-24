@@ -1,0 +1,613 @@
+#include <iostream>
+#include <string>
+#include <locale>
+
+using namespace std;
+
+const int maxSize = 10;
+
+struct Laptop {
+    int rank;
+    string name;
+    int year;
+    string place;
+    double market;
+    double capital;
+};
+
+struct IndexCapital { // Индекс для сортировки по капитализации
+    double capital;
+    int recordIndex;
+};
+
+struct IndexYear { // Индекс для сортировки по году основания
+    int year;
+    int recordIndex;
+};
+
+Laptop* laptops = new Laptop[maxSize]; // Массив компаний
+IndexYear* yearIndex = new IndexYear[maxSize];
+IndexCapital* capitalIndex = new IndexCapital[maxSize];
+
+int currentSize = 0;
+
+void loadData() { // Заполнение начальными данными
+    currentSize = 5;
+
+    laptops[0] = { 1, "Lenovo", 1984, "Китай", 24.8, 16 };
+    laptops[1] = { 2, "HP", 1939, "США", 21.9, 27 };
+    laptops[2] = { 3, "Dell", 1984, "США", 16.6, 28 };
+    laptops[3] = { 4, "Apple", 1976, "США", 9.0, 2890 };
+    laptops[4] = { 5, "Asus", 1989, "Тайвань", 7.1, 11 };
+}
+
+void printLaptop(Laptop& laptop) { 
+    cout << "\nМесто в рейтинге: " << laptop.rank;
+    cout << "\nНазвание: " << laptop.name;
+    cout << "\nГод основания: " << laptop.year;
+    cout << "\nДоля на рынке: " << round(laptop.market * 10) / 10 << "%";
+    cout << "\nКапитализация: $" << laptop.capital << " млрд";
+    cout << "\nМесто основания: " << laptop.place << "\n";
+}
+
+void buildIndexDoubleDown(IndexCapital* indexArray) { // По убыванию
+    for (int i = 0; i < currentSize; ++i) { // Копирование значений
+        double offValue = laptops[i].capital; // Находим значение капитализации для i компании
+        int offIndex = i;
+
+        indexArray[i].capital = offValue; // Присваиваем значение
+        indexArray[i].recordIndex = offIndex;  // Сохраняем индекс
+    }
+
+    for (int i = 1; i < currentSize; ++i) {  // Сортировка вставками по убыванию, проходим и перемещаем элементы
+
+        IndexCapital capitalElem;
+        capitalElem.capital = indexArray[i].capital;
+        capitalElem.recordIndex = indexArray[i].recordIndex;
+
+        int pos = i; // Текущая позиция элемента, который нужно переместить
+
+        while (pos > 0 && indexArray[pos - 1].capital < capitalElem.capital) { // Двигаем предыдущий элемент вправо, пока он меньше текущего
+            indexArray[pos].capital = indexArray[pos - 1].capital;
+            indexArray[pos].recordIndex = indexArray[pos - 1].recordIndex;
+            pos--; // Переходим на позицию слева
+        }
+
+        indexArray[pos].capital = capitalElem.capital; // Вставляем сохранённый элемент в найденное место
+        indexArray[pos].recordIndex = capitalElem.recordIndex;
+    }
+}
+
+void buildIndexInt(IndexYear* indexArray) { // По возрастанию для года основания
+    for (int i = 0; i < currentSize; ++i) { 
+        int offValue = laptops[i].year;
+        int offIndex = i;
+
+        indexArray[i].year = offValue;
+        indexArray[i].recordIndex = offIndex;
+    }
+
+    for (int i = 1; i < currentSize; ++i) {
+        IndexYear capitalElem;
+        capitalElem.year = indexArray[i].year;
+        capitalElem.recordIndex = indexArray[i].recordIndex;
+
+        int pos = i;
+        while (pos > 0 && indexArray[pos - 1].year > capitalElem.year) { // По возрастанию
+            indexArray[pos].year = indexArray[pos - 1].year;
+            indexArray[pos].recordIndex = indexArray[pos - 1].recordIndex;
+            pos--;
+        }
+
+        indexArray[pos].year = capitalElem.year;
+        indexArray[pos].recordIndex = capitalElem.recordIndex;
+    }
+}
+
+void printByIndex(IndexCapital* indexArray) {
+    for (int i = 0; i < currentSize; ++i)
+    {
+        printLaptop(laptops[indexArray[i].recordIndex]); // Вывод компании по индексу капитализации
+    }
+}  
+
+void printByIndex(IndexYear* indexArray) {
+    for (int i = 0; i < currentSize; ++i)
+    {
+        printLaptop(laptops[indexArray[i].recordIndex]); // Вывод компании по индексу года
+    }
+}
+
+void capitalDelete(IndexCapital* capitalIndex) {
+    double capital;
+    cout << "Введите капитализацию компании для удаления: ";
+    cin >> capital;
+
+    for (int i = 0; i < currentSize; ++i) {
+        if (laptops[capitalIndex[i].recordIndex].capital == capital) { // Поиск компании по капитализации
+
+            int toDelete = capitalIndex[i].recordIndex;
+
+            for (int j = toDelete; j < currentSize - 1; ++j) {
+                laptops[j] = laptops[j + 1]; // Сдвиг элементов для удаления
+            }
+            --currentSize;
+
+            cout << "Компания удалена.\n";
+
+            return;
+        }
+    }
+    cout << "Компания с указанной капитализацией не найдена.\n";
+}
+
+void yearDelete(IndexYear* indexArray, int year) {
+    for (int i = 0; i < currentSize; ++i) {
+        if (indexArray[i].year == year) {
+
+            int toDelete = indexArray[i].recordIndex;
+
+            for (int j = toDelete; j < currentSize - 1; ++j) {
+                laptops[j] = laptops[j + 1];
+            }
+            --currentSize;
+
+            cout << "Компания удалена.\n";
+
+            return;
+        }
+    }
+    cout << "Компания с указанным годом основания не найдена.\n";
+}
+
+bool getRank(int rank) { // Проверка уникальностей :)
+    for (int i = 0; i < currentSize; i++) {
+        if (laptops[i].rank == rank)
+            return true;
+    }
+    return false;
+}
+
+bool getName(string name) {
+    for (int i = 0; i < currentSize; i++) {
+        if (laptops[i].name == name)
+            return true;
+    }
+    return false;
+}
+
+bool getCapital(double capital) {
+    for (int i = 0; i < currentSize; i++) {
+        if (laptops[i].capital == capital)
+            return true;
+    }
+    return false;
+}
+
+bool getYear(int year) {
+    for (int i = 0; i < currentSize; i++) {
+        if (laptops[i].year == year)
+            return true;
+    }
+    return false;
+}
+
+bool getRankExcept(int rank, int Index) {
+    for (int i = 0; i < currentSize; i++) {
+        if (i != Index && laptops[i].rank == rank)
+            return true;
+    }
+    return false;
+}
+
+bool getNameExcept(string name, int Index) {
+    for (int i = 0; i < currentSize; i++) {
+        if (i != Index && laptops[i].name == name)
+            return true;
+    }
+    return false;
+}
+
+bool getYearExcept(int year, int Index) {
+    for (int i = 0; i < currentSize; i++) {
+        if (i != Index && laptops[i].year == year)
+            return true;
+    }
+    return false;
+}
+
+bool getCapitalExcept(double capital, int Index) { // Конец проверок на уникальность
+    for (int i = 0; i < currentSize; i++) {
+        if (i != Index && laptops[i].capital == capital)
+            return true;
+    }
+    return false;
+}
+
+void editCompany(IndexYear* indexArray, int year) { // Редактирование компании по году
+    for (int i = 0; i < currentSize; ++i) {
+        if (indexArray[i].year == year) { // Поиск компании по году основания
+
+            int editRank;
+            int editYear;
+            string editName;
+            double editCapital;
+
+            int Index = indexArray[i].recordIndex; // Индекс редактируемой компании
+
+            cout << "Введите новые данные компании:\n";
+
+            do {
+                cout << "Ранг: ";
+                cin >> editRank;
+                if (getRankExcept(editRank, Index))
+                    cout << "Компания с таким рангом уже существует. Введите уникальный ранг.\n";
+            } while (getRankExcept(editRank, Index));
+
+            laptops[Index].rank = editRank;
+
+            do {
+                cout << "Название: ";
+                cin >> editName;
+                if (getNameExcept(editName, Index))
+                    cout << "Компания с таким названием уже существует. Введите уникальное название.\n";
+            } while (getNameExcept(editName, Index));
+
+            laptops[Index].name = editName;
+
+            do {
+                cout << "Год основания: ";
+                cin >> editYear;
+                if (getYearExcept(editYear, Index))
+                    cout << "Компания с таким годом основания уже существует. Введите уникальный год.\n";
+            } while (getYearExcept(editYear, Index));
+
+            laptops[Index].year = editYear;
+
+            cout << "Место основания: ";
+
+            cin >> laptops[Index].place;
+
+            cout << "Доля на рынке: ";
+
+            cin >> laptops[Index].market;
+
+            do {
+                cout << "Капитализация (в млрд $): ";
+                cin >> editCapital;
+                if (getCapitalExcept(editCapital, Index))
+                    cout << "Компания с такой капитализацией уже существует. Введите уникальную капитализацию.\n";
+            } while (getCapitalExcept(editCapital, Index));
+
+            laptops[Index].capital = editCapital;
+
+            cout << "Обновленные данные:\n";
+            printLaptop(laptops[Index]);
+
+            return;
+        }
+    }
+    cout << "Компания с указанным годом основания не найдена.\n";
+}
+
+void editCompanyByCapital(IndexCapital* indexArray, double capital) {
+    for (int i = 0; i < currentSize; ++i) {
+        if (indexArray[i].capital == capital) { // Поиск компании по капитализации
+            int Index = indexArray[i].recordIndex; // Индекс редактируемой компании
+
+            int editRank;
+            int editYear;
+            string editName;
+            double editCapital;
+
+            cout << "Введите новые данные компании:\n";
+
+            do {
+                cout << "Ранг: ";
+                cin >> editRank;
+                if (getRankExcept(editRank, Index))
+                    cout << "Компания с таким рангом уже существует. Введите уникальный ранг.\n";
+            } while (getRankExcept(editRank, Index));
+
+            laptops[Index].rank = editRank;
+
+            do {
+                cout << "Название: ";
+                cin >> editName;
+                if (getNameExcept(editName, Index))
+                    cout << "Компания с таким названием уже существует. Введите уникальное название.\n";
+            } while (getNameExcept(editName, Index));
+
+            laptops[Index].name = editName;
+
+            do {
+                cout << "Год основания: ";
+                cin >> editYear;
+                if (getYearExcept(editYear, Index))
+                    cout << "Компания с таким годом основания уже существует. Введите уникальный год.\n";
+            } while (getYearExcept(editYear, Index));
+
+            laptops[Index].year = editYear;
+
+            cout << "Место основания: ";
+
+            cin >> laptops[Index].place;
+
+            cout << "Доля на рынке: ";
+
+            cin >> laptops[Index].market;
+
+            do {
+                cout << "Капитализация (в млрд $): ";
+                cin >> editCapital;
+                if (getCapitalExcept(editCapital, Index))
+                    cout << "Компания с такой капитализацией уже существует. Введите уникальную капитализацию.\n";
+            } while (getCapitalExcept(editCapital, Index));
+
+            laptops[Index].capital = editCapital;
+
+            cout << "Обновленные данные:\n";
+            printLaptop(laptops[Index]);
+
+            return;
+        }
+    }
+    cout << "Компания с указанной капитализацией не найдена.\n";
+}
+
+void yearRecursive(IndexYear* indexArray, int left, int right, int year) {
+    if (left > right) {
+        cout << "Компания с указанным годом основания не найдена.\n";
+        return;
+    }
+
+    int mid = left + (right - left) / 2;
+    if (indexArray[mid].year == year) {
+        cout << "Компания найдена:\n";
+        printLaptop(laptops[indexArray[mid].recordIndex]);
+    }
+
+    else if (indexArray[mid].year > year) {
+        yearRecursive(indexArray, left, mid - 1, year);
+    }
+
+    else {
+        yearRecursive(indexArray, mid + 1, right, year);
+    }
+}
+
+void capitalIterative(IndexCapital* indexArray, double capital) {
+    int left = 0;
+    int right = currentSize - 1;
+
+    while (left <= right) {
+        int mid = left + (right - left) / 2; // Находим середину
+
+        if (indexArray[mid].capital == capital) { //Если найден - выводим
+            cout << "Компания с капитализацией " << capital << " найдена:\n";
+            printLaptop(laptops[indexArray[mid].recordIndex]);
+            return;
+        }
+
+        else if (indexArray[mid].capital < capital) {
+            right = mid - 1; // Если значение элемента середины меньше, ищем в левой части (так как массив отсортирован по убыванию)
+        }
+
+        else {
+            left = mid + 1; // Если значение в середине больше, ищем в правой части массива
+        }
+    }
+    cout << "Компания с капитализацией " << capital << " не найдена.\n";
+}
+
+
+void newCompany() { // Новая компания
+    if (currentSize >= maxSize) {
+        cout << "\nВведено максимальное количество компаний - " << maxSize << "\n";
+        return;
+    }
+
+    Laptop laptop;
+    cout << "Введите данные новой компании:\n";
+
+    do { // Проверка уникальности
+        cout << "Ранг: ";
+        cin >> laptop.rank;
+        if (getRank(laptop.rank))
+            cout << "Компания с таким рангом уже существует. Введите уникальный ранг.\n";
+    } while (getRank(laptop.rank));
+
+    do {
+        cout << "Название: ";
+        cin >> laptop.name;
+        if (getName(laptop.name))
+            cout << "Компания с таким названием уже существует. Введите уникальное название.\n";
+    } while (getName(laptop.name));
+
+    do {
+        cout << "Год основания: ";
+        cin >> laptop.year;
+        if (getYear(laptop.year))
+            cout << "Компания с таким годом основания уже существует. Введите уникальный год.\n";
+    } while (getYear(laptop.year));
+
+    cout << "Место основания: ";
+
+    cin >> laptop.place;
+
+    cout << "Доля на рынке: ";
+
+    cin >> laptop.market;
+
+    do {
+        cout << "Капитализация: ";
+        cin >> laptop.capital;
+        if (getCapital(laptop.capital))
+            cout << "Компания с такой капитализацией уже существует. Введите уникальную капитализацию.\n";
+    } while (getCapital(laptop.capital));
+
+    laptops[currentSize] = laptop;
+    currentSize++;
+}
+
+int main() {
+    setlocale(LC_ALL, "RU"); // Нормальная Кириллица
+
+    cout << "Задание 1. Массивы\n";
+    loadData();
+
+    while (true) {
+        cout << "\nМеню:\n";
+        cout << "1. Показать все компании в порядке ввода\n";
+        cout << "2. Сортировать по году основания (возрастание)\n";
+        cout << "3. Сортировать по капитализации (убывание)\n";
+        cout << "4. Добавить компанию\n";
+        cout << "5. Удалить компанию по капитализации\n";
+        cout << "6. Удалить компанию по году основания\n";
+        cout << "7. Поиск рекурсией по году основания\n";
+        cout << "8. Поиск итерацией по капитализации\n";
+        cout << "9. Редактировать компанию (поиск по году основания)\n";
+        cout << "10. Редактировать компанию (поиск по капитализации)\n";
+        cout << "0. Выход\n";
+        cout << "Выберите действие: ";
+
+        int choice;
+        cin >> choice;
+
+        if (choice == 0) {
+            cout << "Выход из программы...\n";
+            break;
+        }
+
+        switch (choice) {
+        case 1:
+            if (currentSize == 0) {
+                cout << "\nКомпаний нет\n";
+                break;
+            }
+            else {
+                for (int i = 0; i < currentSize; ++i) { // Вывод в порядке ввода
+                    printLaptop(laptops[i]);
+                }
+            }
+            break;
+        case 2:
+            if (currentSize == 0) {
+                cout << "\nКомпаний нет\n";
+                break;
+            }
+            else {
+                buildIndexInt(yearIndex);
+                cout << "\nКомпании, отсортированные по году основания:\n";
+                printByIndex(yearIndex);
+            }
+            break;
+        case 3:
+            if (currentSize == 0) {
+                cout << "\nКомпаний нет\n";
+                break;
+            }
+            else {
+                buildIndexDoubleDown(capitalIndex);
+                cout << "\nКомпании, отсортированные по капитализации:\n";
+                printByIndex(capitalIndex);
+            }
+            break;
+        case 4:
+            newCompany();
+            break;
+        case 5:
+            if (currentSize == 0) {
+                cout << "\nКомпаний нет, действие невозможно\n";
+                break;
+            }
+            else {
+                IndexCapital capitalIndex[maxSize];
+                buildIndexDoubleDown(capitalIndex);
+                capitalDelete(capitalIndex);
+                break;
+            }
+        case 6:
+            if (currentSize == 0) {
+                cout << "\nКомпаний нет, действие невозможно\n";
+                break;
+            }
+            else {
+                int year;
+
+                cout << "Введите год основания компании для удаления: ";
+                cin >> year;
+
+                IndexYear indexArray[maxSize];
+                buildIndexInt(indexArray);
+                yearDelete(indexArray, year);
+                break;
+            }
+        case 7:
+            if (currentSize == 0) {
+                cout << "\nКомпаний нет, действие невозможно\n";
+                break;
+            }
+            else {
+                int year;
+
+                cout << "Введите год основания для поиска: ";
+                cin >> year;
+
+                IndexYear indexArray[maxSize];
+                buildIndexInt(indexArray);
+                yearRecursive(indexArray, 0, currentSize - 1, year);
+                break;
+            }
+        case 8:
+            if (currentSize == 0) {
+                cout << "\nКомпаний нет, действие невозможно\n";
+                break;
+            }
+            else {
+                double capital;
+
+                cout << "Введите капитализацию для поиска: ";
+                cin >> capital;
+
+                IndexCapital indexArray[maxSize];
+                buildIndexDoubleDown(indexArray);
+                capitalIterative(indexArray, capital);
+                break;
+            }
+        case 9:
+            if (currentSize == 0) {
+                cout << "\nКомпаний нет, действие невозможно\n";
+                break;
+            }
+            else {
+                int year;
+                cout << "Введите год основания компании, которую вы хотите изменить: ";
+                cin >> year;
+
+                IndexYear indexArray[maxSize];
+                buildIndexInt(indexArray);
+                editCompany(indexArray, year);
+                break;
+            }
+        case 10:
+            if (currentSize == 0) {
+                cout << "\nКомпаний нет, действие невозможно\n";
+                break;
+            }
+            else {
+                double capital;
+                cout << "Введите капитализацию компании для поиска: ";
+                cin >> capital;
+                IndexCapital indexArray[maxSize];
+                buildIndexDoubleDown(indexArray);
+                editCompanyByCapital(indexArray, capital);
+                break;
+            }
+        default:
+            cout << "Неверный выбор. Попробуйте еще раз.\n";
+        }
+    }
+    return 0;
+}
+
