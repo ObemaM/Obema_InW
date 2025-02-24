@@ -1,0 +1,566 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+struct Laptop {
+    int rank;
+    string name;
+    int year;
+    string place;
+    double market;
+    double capital;
+};
+
+struct Head {
+    string toName;
+    double toMarket;
+    Head* sortedName = nullptr; // Указатель для сортированного по имени списка
+    Head* sortedMarket = nullptr; // Указатель для сортированного по доле списка
+};
+
+Laptop* companiesArray = nullptr; // Массив для того, чтобы хранить все записи
+Head* headInput = nullptr;
+Head* endInput = nullptr;
+int maxSize = 10;
+int currentSize = 0;
+
+void printLaptop(Laptop& laptop) {
+    cout << "\nМесто в рейтинге: " << laptop.rank << "\n";
+    cout << "Название: " << laptop.name << "\n";
+    cout << "Год основания: " << laptop.year << "\n";
+    cout << "Место основания: " << laptop.place << "\n";
+    cout << "Доля на рынке: " << round(laptop.market * 10) / 10 << "%\n";
+    cout << "Капитализация: $" << laptop.capital << " млрд\n";
+}
+
+void recordCompany(Laptop& laptop) { // Добавление записи в массив и списки
+
+    companiesArray[currentSize] = laptop;
+
+    Head* newNodeName = new Head; // Создаём новый узел для сортировки по названию
+
+    newNodeName->toName = laptop.name;
+    newNodeName->toMarket = laptop.market;
+    newNodeName->sortedName = nullptr;
+
+    if (headInput == nullptr || newNodeName->toName < headInput->toName) {
+        newNodeName->sortedName = headInput; // Если список пуст или новый элемент меньше первого, то ставим этот элемент в начало
+        headInput = newNodeName;
+    }
+
+    else {
+        Head* current = headInput;
+
+        while (current->sortedName != nullptr && current->sortedName->toName <= newNodeName->toName) { // Ищем место для вставки, пока след элемент больше или равен
+            current = current->sortedName;
+        }
+
+        newNodeName->sortedName = current->sortedName; // Вставляем новый узел на найденное место
+        current->sortedName = newNodeName;
+    }
+
+    Head* newNodeMarket = new Head; // Создаём новый узел для сортировки по доле
+
+    newNodeMarket->toName = laptop.name;
+    newNodeMarket->toMarket = laptop.market;
+    newNodeMarket->sortedMarket = nullptr;
+
+    if (endInput == nullptr || newNodeMarket->toMarket < endInput->toMarket) {
+        newNodeMarket->sortedMarket = endInput; // Если список пуст или новый элемент меньше первого, то ставим этот элемент в начало
+        endInput = newNodeMarket;
+    }
+
+    else {
+        Head* current = endInput;
+
+        while (current->sortedMarket != nullptr && current->sortedMarket->toMarket <= newNodeMarket->toMarket) { // Ищем место для вставки, пока след элемент больше или равен
+            current = current->sortedMarket;
+        }
+
+        newNodeMarket->sortedMarket = current->sortedMarket; // Вставляем новый узел на найденное место
+        current->sortedMarket = newNodeMarket;
+    }
+
+    currentSize++;
+}
+
+void loadInitialData() {
+    int n = 5;
+    companiesArray = new Laptop[maxSize];
+    Laptop companies[5] = {
+        {1, "Lenovo", 1984, "Китай", 24.8, 16},
+        {2, "HP", 1939, "США", 21.9, 27},
+        {3, "Dell", 1984, "США", 16.6, 28},
+        {4, "Apple", 1976, "США", 9.0, 2890},
+        {5, "Asus", 1989, "Тайвань", 7.1, 11}
+    };
+
+    for (int i = 0; i < n; i++) {
+        recordCompany(companies[i]);
+    }
+}
+
+bool getName(string& name) { // Проверки уникальностей :]
+    for (int i = 0; i < currentSize; i++) {
+        if (companiesArray[i].name == name)
+            return true;
+    }
+    return false;
+}
+
+bool getMarket(double market) {
+    for (int i = 0; i < currentSize; i++) {
+        if (companiesArray[i].market == market)
+            return true;
+    }
+    return false;
+}
+
+bool getRank(int rank) {
+    for (int i = 0; i < currentSize; i++) {
+        if (companiesArray[i].rank == rank)
+            return true;
+    }
+    return false;
+}
+
+void addCompany() { // Добавление новой компании
+    if (currentSize == maxSize) {
+        cout << "\nВведено максимальное количество компаний - " << maxSize << "\n";
+        return;
+    }
+
+    Laptop laptop;
+
+    cout << "\nВведите данные новой компании:\n";
+
+    do { // Проверка уникальностей
+        cout << "Ранг: ";
+        cin >> laptop.rank;
+        if (getRank(laptop.rank))
+            cout << "Компания с таким рангом уже существует. Введите уникальный ранг.\n";
+    } while (getRank(laptop.rank));
+
+    do {
+        cout << "Название: ";
+        cin >> laptop.name;
+        if (getName(laptop.name))
+            cout << "Компания с таким названием уже существует. Введите уникальное название.\n";
+    } while (getName(laptop.name));
+
+    cout << "Год основания: ";
+
+    cin >> laptop.year;
+
+    cout << "Место основания: ";
+
+    cin >> laptop.place;
+
+    do {
+        cout << "Доля на рынке: ";
+        cin >> laptop.market;
+        if (getMarket(laptop.market))
+            cout << "Компания с такой долей уже существует. Введите уникальную долю.\n";
+    } while (getMarket(laptop.market));
+
+    cout << "Капитализация (в млрд $): ";
+
+    cin >> laptop.capital;
+
+    recordCompany(laptop);
+    cout << "\nКомпания добавлена.\n";
+}
+
+void sortedCompanyByName() { // Вывод по возрастанию по названию
+    cout << "\nЗаписи в порядке возрастания по названию:\n";
+
+    Head* current = headInput;
+
+    while (current != nullptr) { // Ищем полную запись в массиве по полю
+        for (int i = 0; i < currentSize; i++) {
+            if (companiesArray[i].name == current->toName && companiesArray[i].market == current->toMarket) {
+                printLaptop(companiesArray[i]);
+                break;
+            }
+        }
+        current = current->sortedName;
+    }
+}
+
+void reverseCompanyByNameRecursion(Head* node) { // Вывод по убыванию по названию
+    if (node == nullptr)
+        return;
+
+    reverseCompanyByNameRecursion(node->sortedName);
+
+    for (int i = 0; i < currentSize; i++) { // Ищем полную запись в массиве
+        if (companiesArray[i].name == node->toName && companiesArray[i].market == node->toMarket) {
+            printLaptop(companiesArray[i]); // Выводим найденную компанию
+            break;
+        }
+    }
+}
+
+void reverseCompanyByName() {
+    cout << "\nЗаписи в порядке убывания по названию:\n";
+    reverseCompanyByNameRecursion(headInput); // Рекурсия нужна для вывода по убыванию, так как она обрабатывает данные когда проходит в глубь и выводит их, идя обратно.
+}
+
+void sortedCompanyByMarket() { // Вывод по возрастанию по доле
+    cout << "\nЗаписи в порядке возрастания по доле:\n";
+
+    Head* current = endInput;
+
+    while (current != nullptr) {
+        for (int i = 0; i < currentSize; i++) {
+            if (companiesArray[i].market == current->toMarket && companiesArray[i].name == current->toName) {
+                printLaptop(companiesArray[i]);
+                break;
+            }
+        }
+        current = current->sortedMarket;
+    }
+}
+
+void reverseCompanyByMarketRecursion(Head* node) { // Вывод по убыванию по доле
+    if (node == nullptr)
+        return;
+
+    reverseCompanyByMarketRecursion(node->sortedMarket);
+
+    for (int i = 0; i < currentSize; i++) {
+        if (companiesArray[i].market == node->toMarket && companiesArray[i].name == node->toName) {
+            printLaptop(companiesArray[i]);
+            break;
+        }
+    }
+}
+
+void reverseCompanyByMarket() {
+    cout << "\nЗаписи в порядке убывания по доле:\n";
+    reverseCompanyByMarketRecursion(endInput);
+}
+
+void searchNameIterative() { // Поиск через итерацию по названию
+    string name;
+
+    cout << "Введите название компании для поиска: ";
+    cin >> name;
+
+    bool found = false;
+
+    for (int i = 0; i < currentSize; i++) {
+        if (companiesArray[i].name == name) {
+            cout << "\nКомпания найдена:\n";
+            printLaptop(companiesArray[i]);
+            found = true;
+            break;
+        }
+    }
+
+    if (!found) {
+        cout << "\nКомпания с названием " << name << " не найдена.\n";
+    }
+}
+
+Head* MarketRecursion(Head* node, double market) { // Поиск по доле рекурсией
+    if (node == nullptr)
+        return nullptr;
+
+    if (node->toMarket == market) // Если нашли нужный узел, то возвращаем его
+        return node;
+
+    return MarketRecursion(node->sortedMarket, market);
+}
+
+void searchMarketRecursion() {
+    double market;
+
+    cout << "\nВведите долю компании (без процентов) для поиска: ";
+    cin >> market;
+
+    Head* found = MarketRecursion(endInput, market);
+
+    if (found) { // Ищем компанию в массиве компаний после того, как нашли
+        for (int i = 0; i < currentSize; i++) {
+            if (companiesArray[i].market == found->toMarket && companiesArray[i].name == found->toName) {
+                cout << "\nКомпания найдена:\n";
+                printLaptop(companiesArray[i]);
+                break;
+            }
+        }
+    }
+
+    else {
+        cout << "\nКомпания с долей в " << market << "% не найдена.\n";
+    }
+}
+
+void deleteCompanyByNameFromArrayAndLists() { // Удаление компании по названию
+    string name;
+
+    cout << "\nВведите название компании для удаления: ";
+    cin >> name;
+
+    int index = -1;
+    for (int i = 0; i < currentSize; i++) {
+        if (companiesArray[i].name == name) {
+            index = i;
+            break;
+        }
+    }
+
+    if (index == -1) {
+        cout << "\nКомпания с названием " << name << " не найдена.\n";
+        return;
+    }
+
+    double market = companiesArray[index].market; // Запоминаем долю рынка перед удаление
+
+    for (int i = index; i < currentSize - 1; i++) { // Удаляем запись из массива (сдвигаем оставшиеся записи)
+        companiesArray[i] = companiesArray[i + 1];
+    }
+    currentSize--;
+
+    if (headInput != nullptr) { // Удаляем узлы из отсортированных списков. Здесь список по названию
+        if (headInput->toName == name && headInput->toMarket == market) {
+            Head* temp = headInput;
+            headInput = headInput->sortedName; // Сдвигаем голову списка
+            delete temp;
+        }
+
+        else {
+            Head* current = headInput;
+            while (current->sortedName) {
+                if (current->sortedName->toName == name && current->sortedName->toMarket == market) {
+                    Head* temp = current->sortedName;
+                    current->sortedName = temp->sortedName; // Убираем узел из списка
+                    delete temp;
+                    break;
+                }
+
+                current = current->sortedName;
+            }
+        }
+    }
+
+    if (endInput != nullptr) { // Удаляем узлы из отсортированных списков. Здесь список по доле
+        if (endInput->toMarket == market && endInput->toName == name) {
+            Head* temp = endInput;
+            endInput = endInput->sortedMarket; // Сдвигаем голову списка
+            delete temp;
+        }
+
+        else {
+            Head* current = endInput;
+            while (current->sortedMarket) {
+                if (current->sortedMarket->toMarket == market && current->sortedMarket->toName == name) {
+                    Head* temp = current->sortedMarket;
+                    current->sortedMarket = temp->sortedMarket; // Убираем узел из списка
+                    delete temp;
+                    break;
+                }
+
+                current = current->sortedMarket;
+            }
+        }
+    }
+
+    cout << "\nКомпания удалена.\n";
+}
+
+void deleteCompanyByMarketFromArrayAndLists() { // Удаление компании по доле
+    double market;
+
+    cout << "\nВведите долю (без процентов) компании для удаления: ";
+    cin >> market;
+
+    int index = -1;
+    for (int i = 0; i < currentSize; i++) {
+        if (companiesArray[i].market == market) {
+            index = i;
+            break;
+        }
+    }
+    if (index == -1) {
+        cout << "\nКомпания с долей в " << market << "% не найдена.\n";
+        return;
+    }
+
+    string name = companiesArray[index].name;
+    for (int i = index; i < currentSize - 1; i++) {
+        companiesArray[i] = companiesArray[i + 1];
+    }
+    currentSize--;
+
+    if (headInput != nullptr) { // Удаляем узлы из отсортированных списков. Здесь список по названию
+        if (headInput->toName == name && headInput->toMarket == market) {
+            Head* temp = headInput;
+            headInput = headInput->sortedName;
+            delete temp;
+        }
+
+        else {
+            Head* current = headInput;
+            while (current->sortedName) {
+                if (current->sortedName->toName == name && current->sortedName->toMarket == market) {
+                    Head* temp = current->sortedName;
+                    current->sortedName = temp->sortedName;
+                    delete temp;
+                    break;
+                }
+
+                current = current->sortedName;
+            }
+        }
+    }
+
+    if (endInput != nullptr) { // Удаляем узлы из отсортированных списков. Здесь список по доле
+        if (endInput->toMarket == market && endInput->toName == name) {
+            Head* temp = endInput;
+            endInput = endInput->sortedMarket;
+            delete temp;
+        }
+
+        else {
+            Head* current = endInput;
+            while (current->sortedMarket) {
+                if (current->sortedMarket->toMarket == market && current->sortedMarket->toName == name) {
+                    Head* temp = current->sortedMarket;
+                    current->sortedMarket = temp->sortedMarket;
+                    delete temp;
+                    break;
+                }
+
+                current = current->sortedMarket;
+            }
+        }
+    }
+
+    cout << "\nКомпания удалена.\n";
+}
+
+int main() {
+
+    setlocale(LC_ALL, "RU"); // Нормальная Кириллица
+
+    cout << "Задание 3. Списки\n";
+
+    loadInitialData();
+
+    int choice;
+    do {
+        cout << "\nМеню:\n";
+        cout << "1. Вывести записи в порядке ввода\n";
+        cout << "2. Вывести записи в порядке возрастания по названию\n";
+        cout << "3. Вывести записи в порядке убывания по названию\n";
+        cout << "4. Вывести записи в порядке возрастания по доле\n";
+        cout << "5. Вывести записи в порядке убывания по доле\n";
+        cout << "6. Добавить новую компанию\n";
+        cout << "7. Поиск компании по названию\n";
+        cout << "8. Поиск компании по доле\n";
+        cout << "9. Удалить компанию по названию\n";
+        cout << "10. Удалить компанию по доле\n";
+        cout << "0. Выход\n";
+        cout << "Выберите действие: ";
+
+        cin >> choice;
+        switch (choice) {
+        case 1:
+            if (currentSize == 0) {
+                cout << "\nКомпаний нет\n";
+                break;
+            }
+            else {
+                cout << "\nЗаписи в порядке ввода:\n";
+                for (int i = 0; i < currentSize; i++) {
+                    printLaptop(companiesArray[i]);
+                }
+            }
+            break;
+        case 2:
+            if (currentSize == 0) {
+                cout << "\nКомпаний нет\n";
+                break;
+            }
+            else {
+                sortedCompanyByName();
+            }
+            break;
+        case 3:
+            if (currentSize == 0) {
+                cout << "\nКомпаний нет\n";
+                break;
+            }
+            else {
+                reverseCompanyByName();
+            }
+            break;
+        case 4:
+            if (currentSize == 0) {
+                cout << "\nКомпаний нет\n";
+                break;
+            }
+            else {
+                sortedCompanyByMarket();
+            }
+            break;
+        case 5:
+            if (currentSize == 0) {
+                cout << "\nКомпаний нет\n";
+                break;
+            }
+            else {
+                reverseCompanyByMarket();
+            }
+            break;
+        case 6:
+            addCompany();
+            break;
+        case 7:
+            if (currentSize == 0) {
+                cout << "\nКомпаний нет, действие невозможно\n";
+                break;
+            }
+            else {
+                searchNameIterative();
+            }
+            break;
+        case 8:
+            if (currentSize == 0) {
+                cout << "\nКомпаний нет, действие невозможно\n";
+                break;
+            }
+            else {
+                searchMarketRecursion();
+            }
+            break;
+        case 9:
+            if (currentSize == 0) {
+                cout << "\nКомпаний нет, действие невозможно\n";
+                break;
+            }
+            else {
+                deleteCompanyByNameFromArrayAndLists();
+            }
+            break;
+        case 10:
+            if (currentSize == 0) {
+                cout << "\nКомпаний нет, действие невозможно\n";
+                break;
+            }
+            else {
+                deleteCompanyByMarketFromArrayAndLists();
+            }
+            break;
+        case 0:
+            cout << "Выход из программы...\n";
+            break;
+        default:
+            cout << "Неверный выбор. Попробуйте снова.\n";
+        }
+    } while (choice != 0);
+
+    return 0;
+}
