@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include <locale>
 
 using namespace std;
 
@@ -41,7 +40,7 @@ void loadData() { // Заполнение начальными данными
     laptops[4] = { 5, "Asus", 1989, "Тайвань", 7.1, 11 };
 }
 
-void printLaptop(Laptop& laptop) { 
+void printLaptop(Laptop& laptop) {
     cout << "\nМесто в рейтинге: " << laptop.rank;
     cout << "\nНазвание: " << laptop.name;
     cout << "\nГод основания: " << laptop.year;
@@ -79,7 +78,7 @@ void buildIndexDoubleDown(IndexCapital* indexArray) { // По убыванию
 }
 
 void buildIndexInt(IndexYear* indexArray) { // По возрастанию для года основания
-    for (int i = 0; i < currentSize; ++i) { 
+    for (int i = 0; i < currentSize; ++i) {
         int offValue = laptops[i].year;
         int offIndex = i;
 
@@ -109,7 +108,7 @@ void printByIndex(IndexCapital* indexArray) {
     {
         printLaptop(laptops[indexArray[i].recordIndex]); // Вывод компании по индексу капитализации
     }
-}  
+}
 
 void printByIndex(IndexYear* indexArray) {
     for (int i = 0; i < currentSize; ++i)
@@ -610,4 +609,3 @@ int main() {
     }
     return 0;
 }
-
