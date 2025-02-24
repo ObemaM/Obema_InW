@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <cmath>
 
 using namespace std;
 
@@ -28,12 +29,12 @@ ElemTree* rootRank = nullptr;
 ElemTree* rootName = nullptr;
 
 void printCompany(Laptop& laptop) { // Вывод информации о компаниях
-    cout << "\nРанг: " << laptop.rank << "\n";
-    cout << "Название: " << laptop.name << "\n";
-    cout << "Год основания: " << laptop.year << "\n";
-    cout << "Страна: " << laptop.place << "\n";
-    cout << "Доля на рынке: " << round(laptop.market * 10) / 10 << "%\n";
-    cout << "Капитализация: " << laptop.capital << " млрд $\n";
+    cout << "\nМесто в рейтинге: " << laptop.rank;
+    cout << "\nНазвание: " << laptop.name;
+    cout << "\nГод основания: " << laptop.year;
+    cout << "\nДоля на рынке: " << round(laptop.market * 10) / 10 << "%";
+    cout << "\nКапитализация: $" << laptop.capital << " млрд";
+    cout << "\nМесто основания: " << laptop.place << "\n";
 }
 
 void addToRank(ElemTree*& root, Laptop& laptop) { // Вставка в дерево рангов
@@ -369,9 +370,9 @@ ElemTree* deleteNodeRank(ElemTree* root, int key) { // Удаление по р�
             root->name = temp->name; // Копируем имя
 
             if (old == root) // Если максимальный узел является левым потомком
-                old->left = temp->left; // Переназначаем левый
+                old->left = temp->left; // Задаем левый
             else
-                old->right = temp->left; // Иначе, переназначаем правый
+                old->right = temp->left; // Иначе, задаем правый
 
             delete temp; // Удаляем узел
         }
@@ -423,12 +424,12 @@ ElemTree* deleteNodeName(ElemTree* root, string key) { // Удаление по 
     return root;
 }
 
-void deleteCompanyByRank(int key) { // Удаление компании по названию. После удаления обновляются деревья и снова балансируются
+void deleteCompanyByRank(int rank) { // Удаление компании по названию. После удаления деревья балансируются
     int delIndex = -2;
     string delName;
 
     for (int i = 0; i < currentSize; i++) {
-        if (companies[i].rank == key) {
+        if (companies[i].rank == rank) {
             delIndex = i; // Сохраняем индекс для удаления из исходного массива
             delName = companies[i].name; // Название сохраняется, чтобы удалить из дерева названий
             break;
@@ -440,7 +441,7 @@ void deleteCompanyByRank(int key) { // Удаление компании по н
         return;
     }
 
-    rootRank = deleteNodeRank(rootRank, key); // Удаляем из деревьев
+    rootRank = deleteNodeRank(rootRank, rank); // Удаляем из деревьев
     rootName = deleteNodeName(rootName, delName);
 
     for (int i = delIndex; i < currentSize - 1; i++) { // + удаляем из исходного массива
