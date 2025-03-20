@@ -17,15 +17,24 @@ struct Laptop {
 Laptop companies[maxSize];
 int currentSize = 0;
 
-struct ElemTree {
-    int rank;
-    string name;
-    ElemTree* right;
-    ElemTree* left;
+// ИСПРАВЛЕНИЕ - две структуры
+
+struct RankTreeNode {
+    int key;
+    int number;
+    RankTreeNode* left;
+    RankTreeNode* right;
 };
 
-ElemTree* rootRank = nullptr;
-ElemTree* rootName = nullptr;
+struct NameTreeNode {
+    string key;
+    int number;
+    NameTreeNode* left;
+    NameTreeNode* right;
+};
+
+RankTreeNode* rootRank = nullptr;
+NameTreeNode* rootName = nullptr;
 
 void printCompany(Laptop& laptop) { // Вывод информации о компаниях
     cout << "\nМесто в рейтинге: " << laptop.rank;
@@ -36,118 +45,128 @@ void printCompany(Laptop& laptop) { // Вывод информации о ком
     cout << "\nМесто основания: " << laptop.place << "\n";
 }
 
-void addToRank(ElemTree*& root, Laptop& laptop) { // Вставка в дерево рангов
+void addToRank(RankTreeNode*& root, int rank, int index) { // Вставка в дерево рангов
     if (root == nullptr) {
-        root = new ElemTree;
-        root->rank = laptop.rank;
-        root->name = laptop.name; // Для удаления
+        root = new RankTreeNode;
+        root->key = rank;
+        root->number = index;
         root->left = nullptr;
         root->right = nullptr;
     }
-
     else {
-        if (laptop.rank < root->rank)
-            addToRank(root->left, laptop); // В левое поддерево, если ранг меньше
-        else
-            addToRank(root->right, laptop); // Иначе – в правое поддерево
+        if (rank < root->key) {
+            addToRank(root->left, rank, index); // В левое поддерево, если ранг меньше
+        }
+        else {
+            addToRank(root->right, rank, index); // Иначе – в правое поддерево
+        }
     }
 }
 
-void addToName(ElemTree*& root, Laptop& laptop) { // Вставка в дерево названий
+void addToName(NameTreeNode*& root, string name, int index) { // Вставка в дерево названий
     if (root == nullptr) {
-        root = new ElemTree;
-        root->name = laptop.name;
-        root->rank = laptop.rank; // Для удаления
+        root = new NameTreeNode;
+        root->key = name;
+        root->number = index;
         root->left = nullptr;
         root->right = nullptr;
     }
-
     else {
-        if (laptop.name < root->name)
-            addToName(root->left, laptop);
-        else
-            addToName(root->right, laptop);
+        if (name < root->key) {
+            addToName(root->left, name, index); // В левое поддерево, если название меньше
+        }
+        else {
+            addToName(root->right, name, index); // Иначе – в правое поддерево
+        }
     }
 }
 
-void rankToAscending(ElemTree* root) { // Обход по возрастанию. Для каждого узла находим компанию в массиве по ключу
+void rankToAscending(RankTreeNode* root) { // Обход по возрастанию. Для каждого узла находим компанию в массиве по ключу
     if (root != nullptr) {
 
         rankToAscending(root->left); // Рекурсивный обход левого поддерева
+        
+        printCompany(companies[root->number]); // ИСПРАВЛЕНИЕ
 
-        for (int i = 0; i < currentSize; i++) {
+        /*for (int i = 0; i < currentSize; i++) {
             if (companies[i].rank == root->rank) {
                 printCompany(companies[i]);
                 break;
             }
-        }
+        }*/
 
         rankToAscending(root->right); // Обход правого поддерева
     }
 }
 
-void nameToDescending(ElemTree* root) { // Обход по убывнию
+void nameToDescending(NameTreeNode* root) { // Обход по убывнию
     if (root != nullptr) {
 
         nameToDescending(root->right);
 
-        for (int i = 0; i < currentSize; i++) {
-            if (companies[i].name == root->name) { 
+        printCompany(companies[root->number]); // ИСПРАВЛЕНИЕ
+
+        /*for (int i = 0; i < currentSize; i++) {
+            if (companies[i].name == root->name) {
                 printCompany(companies[i]);
                 break;
             }
-        }
+        }*/
 
         nameToDescending(root->left);
     }
 }
 
-void rankToDescending(ElemTree* root) {
+void rankToDescending(RankTreeNode* root) {
     if (root != nullptr) {
 
         rankToDescending(root->right);
 
-        for (int i = 0; i < currentSize; i++) {
+        printCompany(companies[root->number]); // ИСПРАВЛЕНИЕ
+
+        /*for (int i = 0; i < currentSize; i++) {
             if (companies[i].rank == root->rank) {
                 printCompany(companies[i]);
                 break;
             }
-        }
+        }*/
 
         rankToDescending(root->left);
     }
 }
 
-void nameToAscending(ElemTree* root) { // Обход дерева названий по возрастанию
+void nameToAscending(NameTreeNode* root) { // Обход дерева названий по возрастанию
     if (root != nullptr) {
 
         nameToAscending(root->left);
 
-        for (int i = 0; i < currentSize; i++) {
+        printCompany(companies[root->number]); // ИСПРАВЛЕНИЕ
+
+        /*for (int i = 0; i < currentSize; i++) {
             if (companies[i].name == root->name) {
                 printCompany(companies[i]);
                 break;
             }
-        }
+        }*/
 
         nameToAscending(root->right);
     }
 }
 
-ElemTree* searchRankRecursive(ElemTree* root, int key) { // Рекурсивный поиск по дереву
-    if (root == nullptr || root->rank == key)
+RankTreeNode* searchRankRecursive(RankTreeNode* root, int key) { // Рекурсивный поиск по дереву
+    if (root == nullptr || root->key == key)
         return root;
 
-    if (key < root->rank)
+    if (key < root->key)
         return searchRankRecursive(root->left, key); // Поиск в левом поддереве
 
     else
         return searchRankRecursive(root->right, key); // Поиск в правом поддереве
 }
 
-ElemTree* searchNameIterative(ElemTree* root, string key) { // Итеративный поиск по дереву названий
-    while (root != nullptr && root->name != key) {
-        if (key < root->name)
+NameTreeNode* searchNameIterative(NameTreeNode* root, string key) { // Итеративный поиск по дереву названий
+    while (root != nullptr && root->key != key) {
+        if (key < root->key)
             root = root->left;
         else
             root = root->right;
@@ -156,7 +175,7 @@ ElemTree* searchNameIterative(ElemTree* root, string key) { // Итератив�
     return root;
 }
 
-void storeRank(ElemTree* root, ElemTree* arr[], int& index) {
+void storeRank(RankTreeNode* root, RankTreeNode* arr[], int& index) {
     if (root == nullptr)
         return;
 
@@ -165,12 +184,12 @@ void storeRank(ElemTree* root, ElemTree* arr[], int& index) {
     storeRank(root->right, arr, index); // Обход правого поддерева
 }
 
-ElemTree* buildBalancedRank(ElemTree* arr[], int start, int end) {
+RankTreeNode* buildBalancedRank(RankTreeNode* arr[], int start, int end) {
     if (start > end)
         return nullptr;
 
     int mid = (start + end) / 2; // Находим средний элемент
-    ElemTree* node = arr[mid]; // Делаем средний элемент корнем дерева
+    RankTreeNode* node = arr[mid]; // Делаем средний элемент корнем дерева
 
     node->left = buildBalancedRank(arr, start, mid - 1); // Строим левое поддерево через рекурсию
     node->right = buildBalancedRank(arr, mid + 1, end); // Строим правое поддерево через рекурсию
@@ -178,16 +197,15 @@ ElemTree* buildBalancedRank(ElemTree* arr[], int start, int end) {
     return node;
 }
 
-void balanceTreeRank(ElemTree*& root) { // Балансировка дерева рангов
-    ElemTree* arr[maxSize];
-
+void balanceTreeRank(RankTreeNode*& root) { // Балансировка дерева рангов
+    RankTreeNode* arr[maxSize];
     int index = 0;
 
     storeRank(root, arr, index);
     root = buildBalancedRank(arr, 0, index - 1);
 }
 
-void storeName(ElemTree* root, ElemTree* arr[], int& index) {
+void storeName(NameTreeNode* root, NameTreeNode* arr[], int& index) {
     if (root == nullptr)
         return;
 
@@ -196,12 +214,12 @@ void storeName(ElemTree* root, ElemTree* arr[], int& index) {
     storeName(root->right, arr, index);
 }
 
-ElemTree* buildBalancedName(ElemTree* arr[], int start, int end) {
+NameTreeNode* buildBalancedName(NameTreeNode* arr[], int start, int end) {
     if (start > end)
         return nullptr;
 
     int mid = (start + end) / 2;
-    ElemTree* node = arr[mid];
+    NameTreeNode* node = arr[mid];
 
     node->left = buildBalancedName(arr, start, mid - 1);
     node->right = buildBalancedName(arr, mid + 1, end);
@@ -209,23 +227,22 @@ ElemTree* buildBalancedName(ElemTree* arr[], int start, int end) {
     return node;
 }
 
-void balanceTreeName(ElemTree*& root) { // Балансировка дерева названий
-    ElemTree* arr[maxSize];
-
+void balanceTreeName(NameTreeNode*& root) { // Балансировка дерева названий
+    NameTreeNode* arr[maxSize];
     int index = 0;
 
     storeName(root, arr, index);
     root = buildBalancedName(arr, 0, index - 1);
 }
 
-int getDepth(ElemTree* root) { // Вычисление глубины дерева названий - для проверки
+int getDepth(NameTreeNode* root) { // Вычисление глубины дерева названий
     if (root == nullptr)
         return 0;
 
     return 1 + max(getDepth(root->left), getDepth(root->right));
 }
 
-bool isBalanced(ElemTree* root) { // Проверка балансировки дерева
+bool isBalanced(NameTreeNode* root) { // Проверка балансировки дерева
     if (root == nullptr)
         return true;
 
@@ -238,7 +255,7 @@ bool isBalanced(ElemTree* root) { // Проверка балансировки �
     return isBalanced(root->left) && isBalanced(root->right);
 }
 
-void freeTreeRank(ElemTree* root) { // Освобождение памяти дерева рангов
+void freeTreeRank(RankTreeNode* root) { // Освобождение памяти дерева рангов
     if (root == nullptr)
         return;
 
@@ -248,7 +265,7 @@ void freeTreeRank(ElemTree* root) { // Освобождение памяти д�
     delete root; // Удаляем текущий узел
 }
 
-void freeTreeName(ElemTree* root) {
+void freeTreeName(NameTreeNode* root) {
     if (root == nullptr)
         return;
 
@@ -267,8 +284,8 @@ void buildTreesFromArray() {
     rootName = nullptr;
 
     for (int i = 0; i < currentSize; i++) { // Заполняем деревья данными из массива companies
-        addToRank(rootRank, companies[i]);
-        addToName(rootName, companies[i]);
+        addToRank(rootRank, companies[i].rank, i);
+        addToName(rootName, companies[i].name, i);
     }
 
     balanceTreeRank(rootRank);
@@ -334,90 +351,86 @@ void addCompany() {
     buildTreesFromArray();
 }
 
-ElemTree* deleteNodeRank(ElemTree* root, int key) { // Удаление по рангу из двух деревьев
+RankTreeNode* deleteNodeRank(RankTreeNode* root, int key) { // Удаление по рангу из двух деревьев
     if (root == nullptr) return root;
 
-    if (key < root->rank) { // Если ключ меньше значения в текущем узле, удаляем из левого поддерева
+    if (key < root->key) { // Если ключ меньше значения в текущем узле, удаляем из левого поддерева
         root->left = deleteNodeRank(root->left, key);
     }
 
-    else if (key > root->rank) { // Если ключ больше значения в текущем узле, удаляем из правого
+    else if (key > root->key) { // Если ключ больше значения в текущем узле, удаляем из правого
         root->right = deleteNodeRank(root->right, key);
     }
 
     else { // Если равен
         if (root->left == nullptr) { // Левого нет => сохраняем правое поддерево и удаляем узел
-            ElemTree* temp = root->right;
+            RankTreeNode* temp = root->right;
             delete root;
             return temp;
         }
         else if (root->right == nullptr) { // Правого нет => сохраняем левое поддерево и удаляем узел
-            ElemTree* temp = root->left;
+            RankTreeNode* temp = root->left;
             delete root;
             return temp;
         }
         else { // Два потомка
-            ElemTree* old = root;
-            ElemTree* temp = root->left; // Начинаем искать с левого
+            RankTreeNode* old = root;
+            RankTreeNode* temp = root->left; // Начинаем искать с левого
 
             while (temp->right != nullptr) {
                 old = temp;
                 temp = temp->right;
             }
 
-            root->rank = temp->rank; // Копируем ранг найденного максимального узла в узел
-            root->name = temp->name; // Копируем имя
-
+            root->key = temp->key; // Копируем ранг найденного максимального узла в узел
+            root->number = temp->number; // Копируем индекс
             if (old == root) // Если максимальный узел является левым потомком
                 old->left = temp->left; // Задаем левый
             else
                 old->right = temp->left; // Иначе, задаем правый
-
             delete temp; // Удаляем узел
         }
     }
     return root;
 }
+NameTreeNode* deleteNodeName(NameTreeNode* root, string key) { // Удаление по имени из двух деревьев
+    if (root == nullptr) return root;
 
-ElemTree* deleteNodeName(ElemTree* root, string key) { // Удаление по имени из двух деревьев
-    if (!root) return nullptr;
-
-    if (key < root->name) {
+    if (key < root->key) { // Если ключ меньше значения в текущем узле, удаляем из левого поддерева
         root->left = deleteNodeName(root->left, key);
     }
 
-    else if (key > root->name) {
+    else if (key > root->key) { // Если ключ больше значения в текущем узле, удаляем из правого
         root->right = deleteNodeName(root->right, key);
     }
 
-    else {
-        if (!root->left && !root->right) {
-            delete root;
-            return nullptr;
-        }
-        else if (!root->left || !root->right) {
-            ElemTree* temp = root->left ? root->left : root->right;
+    else { // Если равен
+        if (root->left == nullptr) { // Левого нет => сохраняем правое поддерево и удаляем узел
+            NameTreeNode* temp = root->right;
             delete root;
             return temp;
         }
-        else {
-            ElemTree* old = root;
-            ElemTree* maxNode = root->left;
+        else if (root->right == nullptr) { // Правого нет => сохраняем левое поддерево и удаляем узел
+            NameTreeNode* temp = root->left;
+            delete root;
+            return temp;
+        }
+        else { // Два потомка
+            NameTreeNode* old = root;
+            NameTreeNode* temp = root->left; // Начинаем искать с левого
 
-            while (maxNode->right) {
-                old = maxNode;
-                maxNode = maxNode->right;
+            while (temp->right != nullptr) { // Ищем максимальный элемент в левом поддереве
+                old = temp;
+                temp = temp->right;
             }
 
-            root->name = maxNode->name;
-            root->rank = maxNode->rank;
-
-            if (old == root)
-                old->left = maxNode->left;
+            root->key = temp->key; // Копируем ключ найденного максимального узла в текущий узел
+            root->number = temp->number; // Копируем индекс
+            if (old == root) // Если максимальный узел является левым потомком
+                old->left = temp->left; // Задаем левый
             else
-                old->right = maxNode->left;
-
-            delete maxNode;
+                old->right = temp->left; // Иначе, задаем правый
+            delete temp; // Удаляем узел
         }
     }
     return root;
@@ -448,8 +461,7 @@ void deleteCompanyByRank(int rank) { // Удаление компании по �
     }
     currentSize--;
 
-    balanceTreeRank(rootRank); // Балансировка после того, как удаляем
-    balanceTreeName(rootName);
+    buildTreesFromArray();
 
     cout << "\nКомпания удалена.\n";
 }
@@ -478,23 +490,26 @@ void deleteCompanyByName(string key) {
     }
     currentSize--;
 
-    balanceTreeRank(rootRank); // Балансировка после удаления
-    balanceTreeName(rootName);
+    buildTreesFromArray();
 
     cout << "\nКомпания удалена.\n";
 }
 
 void searchCompanyByRank(int key) { // Поиск компании по рангу - рекурсия
-    ElemTree* found = searchRankRecursive(rootRank, key);
+    RankTreeNode* found = searchRankRecursive(rootRank, key); // Ищем узел в дереве рангов
 
     if (found != nullptr) {
         cout << "\nКомпания найдена (рекурсивный поиск):\n";
+
+        printCompany(companies[found->number]); // Доступ к данным через индекс
+
+        /*
         for (int i = 0; i < currentSize; i++) {
-            if (companies[i].rank == found->rank) {
+            if (companies[i].rank == found->key) { // Используем key вместо rank
                 printCompany(companies[i]); // Поиск компании по рангу в исходном массиве
                 break;
             }
-        }
+        }*/
     }
 
     else {
@@ -503,16 +518,19 @@ void searchCompanyByRank(int key) { // Поиск компании по ранг
 }
 
 void searchCompanyByName(string key) { // Поиск компании по названию - итерация
-    ElemTree* found = searchNameIterative(rootName, key);
+    NameTreeNode* found = searchNameIterative(rootName, key); // Ищем узел в дереве названий
 
     if (found != nullptr) {
         cout << "\nКомпания найдена (итеративный поиск):\n";
-        for (int i = 0; i < currentSize; i++) {
-            if (companies[i].name == found->name) {
+
+        printCompany(companies[found->number]); // Доступ к данным через индекс
+
+        /*for (int i = 0; i < currentSize; i++) {
+            if (companies[i].name == found->key) { // Используем key вместо name
                 printCompany(companies[i]);
                 break;
             }
-        }
+        }*/
     }
 
     else {
@@ -557,7 +575,7 @@ int main() {
         cout << "8. Добавить новую компанию\n";
         cout << "9. Удалить компанию по рангу\n";
         cout << "10. Удалить компанию по названию\n";
-        cout << "11. Проверить балансировку\n";
+        cout << "11. Проверить балансировку (по названиям)\n";
         cout << "0. Выход\n";
         cout << "Выберите действие: ";
 
