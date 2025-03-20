@@ -117,7 +117,33 @@ void printByIndex(IndexYear* indexArray) {
     }
 }
 
-void capitalDelete(IndexCapital* capitalIndex) {
+void capitalDelete(IndexCapital* capitalIndex) { // ИСПРАВЛЕНИЕ 1
+    double capital;
+    cout << "Введите капитализацию компании для удаления: ";
+    cin >> capital;
+
+    int deleteIndex = -1;
+    for (int i = 0; i < currentSize; ++i) { // Поиск индекса элемента для удаления
+        if (capitalIndex[i].capital == capital) {
+            deleteIndex = capitalIndex[i].recordIndex;
+            break;
+        }
+    }
+
+    if (deleteIndex == -1) { // Если не найдено
+        cout << "Компания с указанной капитализацией не найдена.\n";
+        return;
+    }
+
+    for (int i = deleteIndex; i < currentSize - 1; ++i) { // Сдвиг элементов в основном
+        laptops[i] = laptops[i + 1];
+    }
+
+    --currentSize;
+    cout << "Компания удалена.\n";
+
+    /*
+    void capitalDelete(IndexCapital* capitalIndex) {
     double capital;
     cout << "Введите капитализацию компании для удаления: ";
     cin >> capital;
@@ -138,9 +164,33 @@ void capitalDelete(IndexCapital* capitalIndex) {
         }
     }
     cout << "Компания с указанной капитализацией не найдена.\n";
+    }*/
 }
 
-void yearDelete(IndexYear* indexArray, int year) {
+void yearDelete(IndexYear* indexArray, int year) { // ИСПРАВЛЕНИЕ 2
+    int deleteIndex = -1;
+
+    for (int i = 0; i < currentSize; ++i) { // Через индекс массив
+        if (indexArray[i].year == year) {
+            deleteIndex = indexArray[i].recordIndex;
+            break;
+        }
+    }
+
+    if (deleteIndex == -1) { // Если элемент не найден
+        cout << "Компания с указанным годом основания не найдена.\n";
+        return;
+    }
+
+    for (int i = deleteIndex; i < currentSize - 1; ++i) { // Сдвиг элементов в основном
+        laptops[i] = laptops[i + 1];
+    }
+
+    --currentSize;
+    cout << "Компания удалена.\n";
+
+    /*
+    void yearDelete(IndexYear* indexArray, int year) {
     for (int i = 0; i < currentSize; ++i) {
         if (indexArray[i].year == year) {
 
@@ -156,7 +206,8 @@ void yearDelete(IndexYear* indexArray, int year) {
             return;
         }
     }
-    cout << "Компания с указанным годом основания не найдена.\n";
+    cout << "Компания с указанным годом основания не найдена.\n"; 
+    }*/
 }
 
 bool getRank(int rank) { // Проверка уникальностей :)
@@ -449,6 +500,13 @@ void newCompany() { // Новая компания
     currentSize++;
 }
 
+void clearIndex() { // ИСПРАВЛЕНИЕ 3
+    delete[] yearIndex;
+    delete[] capitalIndex;
+    yearIndex = new IndexYear[maxSize];
+    capitalIndex = new IndexCapital[maxSize];
+}
+
 int main() {
     setlocale(LC_ALL, "RU"); // Нормальная Кириллица
 
@@ -496,6 +554,7 @@ int main() {
                 break;
             }
             else {
+                clearIndex(); // ИСПРАВЛЕНИЕ
                 buildIndexInt(yearIndex);
                 cout << "\nКомпании, отсортированные по году основания:\n";
                 printByIndex(yearIndex);
@@ -507,6 +566,7 @@ int main() {
                 break;
             }
             else {
+                clearIndex();
                 buildIndexDoubleDown(capitalIndex);
                 cout << "\nКомпании, отсортированные по капитализации:\n";
                 printByIndex(capitalIndex);
@@ -521,6 +581,7 @@ int main() {
                 break;
             }
             else {
+                clearIndex();
                 IndexCapital capitalIndex[maxSize];
                 buildIndexDoubleDown(capitalIndex);
                 capitalDelete(capitalIndex);
@@ -537,6 +598,7 @@ int main() {
                 cout << "Введите год основания компании для удаления: ";
                 cin >> year;
 
+                clearIndex();
                 IndexYear indexArray[maxSize];
                 buildIndexInt(indexArray);
                 yearDelete(indexArray, year);
@@ -553,6 +615,7 @@ int main() {
                 cout << "Введите год основания для поиска: ";
                 cin >> year;
 
+                clearIndex();
                 IndexYear indexArray[maxSize];
                 buildIndexInt(indexArray);
                 yearRecursiveSearch(indexArray, 0, currentSize - 1, year);
@@ -569,6 +632,7 @@ int main() {
                 cout << "Введите капитализацию для поиска: ";
                 cin >> capital;
 
+                clearIndex();
                 IndexCapital indexArray[maxSize];
                 buildIndexDoubleDown(indexArray);
                 capitalIterativeSearch(indexArray, capital);
@@ -584,6 +648,7 @@ int main() {
                 cout << "Введите год основания компании, которую вы хотите изменить: ";
                 cin >> year;
 
+                clearIndex();
                 IndexYear indexArray[maxSize];
                 buildIndexInt(indexArray);
                 editCompany(indexArray, year);
@@ -598,6 +663,8 @@ int main() {
                 double capital;
                 cout << "Введите капитализацию компании для поиска: ";
                 cin >> capital;
+
+                clearIndex();
                 IndexCapital indexArray[maxSize];
                 buildIndexDoubleDown(indexArray);
                 editCompanyByCapital(indexArray, capital);
