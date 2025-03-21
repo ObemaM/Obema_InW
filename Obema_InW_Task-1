@@ -554,7 +554,6 @@ int main() {
                 break;
             }
             else {
-                clearIndex(); // ИСПРАВЛЕНИЕ
                 buildIndexInt(yearIndex);
                 cout << "\nКомпании, отсортированные по году основания:\n";
                 printByIndex(yearIndex);
@@ -566,7 +565,6 @@ int main() {
                 break;
             }
             else {
-                clearIndex();
                 buildIndexDoubleDown(capitalIndex);
                 cout << "\nКомпании, отсортированные по капитализации:\n";
                 printByIndex(capitalIndex);
@@ -574,6 +572,7 @@ int main() {
             break;
         case 4:
             newCompany();
+            clearIndex();
             break;
         case 5:
             if (currentSize == 0) {
@@ -581,7 +580,7 @@ int main() {
                 break;
             }
             else {
-                clearIndex();
+                clearIndex(); // ИСПРАВЛЕНИЕ
                 buildIndexDoubleDown(capitalIndex);
                 capitalDelete(capitalIndex);
                 break;
@@ -598,7 +597,6 @@ int main() {
                 cin >> year;
 
                 clearIndex();
-                //IndexYear yearIndex[maxSize];
                 buildIndexInt(yearIndex);
                 yearDelete(yearIndex, year);
                 break;
@@ -615,7 +613,6 @@ int main() {
                 cin >> year;
 
                 clearIndex();
-                //IndexYear yearIndex[maxSize];
                 buildIndexInt(yearIndex);
                 yearRecursiveSearch(yearIndex, 0, currentSize - 1, year);
                 break;
@@ -632,7 +629,6 @@ int main() {
                 cin >> capital;
 
                 clearIndex();
-                //IndexCapital capitalIndex[maxSize];
                 buildIndexDoubleDown(capitalIndex);
                 capitalIterativeSearch(capitalIndex, capital);
                 break;
