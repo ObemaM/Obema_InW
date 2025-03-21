@@ -13,7 +13,7 @@ struct Laptop {
 };
 
 struct Head {
-    int number; // ИСПРАВЛЕНИЕ 1
+    int number; // ИСПРАВЛЕНИЕ
     string toName;
     double toMarket;
     Head* sortedName = nullptr; // Указатель для сортированного по имени списка
@@ -41,7 +41,7 @@ void recordCompany(Laptop& laptop) { // Добавление записи в м�
 
     Head* newNodeName = new Head; // Создаём новый узел для сортировки по названию
 
-    newNodeName->number = currentSize; // ИСПРАВЛЕНИЕ 2
+    newNodeName->number = currentSize; // ИСПРАВЛЕНИЕ
     newNodeName->toName = laptop.name;
     newNodeName->toMarket = laptop.market;
     newNodeName->sortedName = nullptr;
@@ -64,7 +64,7 @@ void recordCompany(Laptop& laptop) { // Добавление записи в м�
 
     Head* newNodeMarket = new Head; // Создаём новый узел для сортировки по доле
 
-    newNodeMarket->number = currentSize; // ИСПРАВЛЕНИЕ 3
+    newNodeMarket->number = currentSize; // ИСПРАВЛЕНИЕ
     newNodeMarket->toName = laptop.name;
     newNodeMarket->toMarket = laptop.market;
     newNodeMarket->sortedMarket = nullptr;
@@ -181,7 +181,7 @@ void sortedCompanyByName() { // Вывод по возрастанию по на
     Head* current = headInput;
 
     while (current != nullptr) { // Ищем полную запись в массиве по полю
-        printLaptop(companiesArray[current->number]); // ИСПРАВЛЕНИЕ 4
+        printLaptop(companiesArray[current->number]); // ИСПРАВЛЕНИЕ
 
         /*for (int i = 0; i < currentSize; i++) {
             if (companiesArray[i].name == current->toName && companiesArray[i].market == current->toMarket) {
@@ -200,7 +200,7 @@ void reverseCompanyByNameRecursion(Head* node) { // Вывод по убыван
 
     reverseCompanyByNameRecursion(node->sortedName);
 
-    printLaptop(companiesArray[node->number]); // ИСПРАВЛЕНИЕ 5
+    printLaptop(companiesArray[node->number]); // ИСПРАВЛЕНИЕ
 
     /*for (int i = 0; i < currentSize; i++) { // Ищем полную запись в массиве
         if (companiesArray[i].name == node->toName && companiesArray[i].market == node->toMarket) {
@@ -221,7 +221,7 @@ void sortedCompanyByMarket() { // Вывод по возрастанию по д
     Head* current = endInput;
 
     while (current != nullptr) {
-        printLaptop(companiesArray[current->number]); // ИСПРАВЛЕНИЕ 6
+        printLaptop(companiesArray[current->number]); // ИСПРАВЛЕНИЕ
 
         /*for (int i = 0; i < currentSize; i++) {
             if (companiesArray[i].market == current->toMarket && companiesArray[i].name == current->toName) {
@@ -240,7 +240,7 @@ void reverseCompanyByMarketRecursion(Head* node) { // Вывод по убыва
 
     reverseCompanyByMarketRecursion(node->sortedMarket);
 
-    printLaptop(companiesArray[node->number]); // ИСПРАВЛЕНИЕ 7
+    printLaptop(companiesArray[node->number]); // ИСПРАВЛЕНИЕ
 
     /*for (int i = 0; i < currentSize; i++) {
         if (companiesArray[i].market == node->toMarket && companiesArray[i].name == node->toName) {
@@ -266,7 +266,7 @@ void searchNameIterative() {
     while (current != nullptr) {
         if (current->toName == name) {
             cout << "\nКомпания найдена:\n";
-            printLaptop(companiesArray[current->number]); 
+            printLaptop(companiesArray[current->number]); // ИСПРАВЛЕНИЕ
             found = true;
             break;
         }
@@ -312,7 +312,7 @@ void searchMarketRecursion() {
 
     if (found) {
         cout << "\nКомпания найдена:\n";
-        printLaptop(companiesArray[found->number]); // ИСПРАВЛЕНИЕ 9
+        printLaptop(companiesArray[found->number]); // ИСПРАВЛЕНИЕ
     }
     else {
         cout << "\nКомпания с долей в " << market << "% не найдена.\n";
@@ -333,7 +333,7 @@ void searchMarketRecursion() {
     }*/
 }
 
-void deleteCompanyByNameFromArrayAndLists() { // ИСПРАВЛЕНИЕ 10
+void deleteCompanyByNameFromArrayAndLists() { // ИСПРАВЛЕНИЕ
     string name;
     cout << "\nВведите название компании для удаления: ";
     cin >> name;
@@ -352,9 +352,11 @@ void deleteCompanyByNameFromArrayAndLists() { // ИСПРАВЛЕНИЕ 10
 
     Head* current = headInput; // Удаляем узлы из headInput (по number)
     Head* previous = nullptr;
+
     while (current != nullptr) {
         if (current->number == index) {
             if (previous == nullptr) {
+
                 headInput = current->sortedName;
                 delete current;
                 current = headInput;
@@ -373,9 +375,11 @@ void deleteCompanyByNameFromArrayAndLists() { // ИСПРАВЛЕНИЕ 10
 
     current = endInput; // Удаляем узлы из endInput (по number)
     previous = nullptr;
+
     while (current != nullptr) {
         if (current->number == index) {
             if (previous == nullptr) {
+
                 endInput = current->sortedMarket;
                 delete current;
                 current = endInput;
@@ -398,6 +402,7 @@ void deleteCompanyByNameFromArrayAndLists() { // ИСПРАВЛЕНИЕ 10
     currentSize--;
 
     current = headInput; // Обновляем number в headInput
+
     while (current != nullptr) {
         if (current->number > index) {
             current->number--;
@@ -406,6 +411,7 @@ void deleteCompanyByNameFromArrayAndLists() { // ИСПРАВЛЕНИЕ 10
     }
 
     current = endInput; // Обновляем number в endInput
+
     while (current != nullptr) {
         if (current->number > index) {
             current->number--;
@@ -416,7 +422,7 @@ void deleteCompanyByNameFromArrayAndLists() { // ИСПРАВЛЕНИЕ 10
     cout << "\nКомпания удалена.\n";
 }
 
-void deleteCompanyByMarketFromArrayAndLists() { // ИСПРАВЛЕНИЕ 11
+void deleteCompanyByMarketFromArrayAndLists() { // ИСПРАВЛЕНИЕ
     double market;
     cout << "\nВведите долю (без процентов) компании для удаления: ";
     cin >> market;
@@ -435,9 +441,11 @@ void deleteCompanyByMarketFromArrayAndLists() { // ИСПРАВЛЕНИЕ 11
 
     Head* current = headInput; // Удаляем узлы из headInput (по number)
     Head* previous = nullptr;
+
     while (current != nullptr) {
         if (current->number == index) {
             if (previous == nullptr) {
+
                 headInput = current->sortedName;
                 delete current;
                 current = headInput;
@@ -456,9 +464,11 @@ void deleteCompanyByMarketFromArrayAndLists() { // ИСПРАВЛЕНИЕ 11
 
     current = endInput; // Удаляем узлы из endInput (по number)
     previous = nullptr;
+
     while (current != nullptr) {
         if (current->number == index) {
             if (previous == nullptr) {
+
                 endInput = current->sortedMarket;
                 delete current;
                 current = endInput;
@@ -481,6 +491,7 @@ void deleteCompanyByMarketFromArrayAndLists() { // ИСПРАВЛЕНИЕ 11
     currentSize--;
 
     current = headInput; // Обновляем number в headInput
+
     while (current != nullptr) {
         if (current->number > index) {
             current->number--;
@@ -489,6 +500,7 @@ void deleteCompanyByMarketFromArrayAndLists() { // ИСПРАВЛЕНИЕ 11
     }
 
     current = endInput; // Обновляем number в endInput
+
     while (current != nullptr) {
         if (current->number > index) {
             current->number--;
