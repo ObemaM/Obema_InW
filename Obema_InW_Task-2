@@ -81,11 +81,13 @@ void addToName(NameTreeNode*& root, string name, int index) { // Вставка 
     }
 }
 
+// Сортировки по возрастанию и убыванию
+
 void rankToAscending(RankTreeNode* root) { // Обход по возрастанию. Для каждого узла находим компанию в массиве по ключу
     if (root != nullptr) {
 
         rankToAscending(root->left); // Рекурсивный обход левого поддерева
-        
+
         printCompany(companies[root->number]); // ИСПРАВЛЕНИЕ
 
         /*for (int i = 0; i < currentSize; i++) {
@@ -501,11 +503,12 @@ void searchCompanyByRank(int key) { // Поиск компании по ранг
     if (found != nullptr) {
         cout << "\nКомпания найдена (рекурсивный поиск):\n";
 
-        printCompany(companies[found->number]); // Доступ к данным через индекс
+        printCompany(companies[found->number]); // Через индексы
 
+        // Как было раньше
         /*
         for (int i = 0; i < currentSize; i++) {
-            if (companies[i].rank == found->key) { // Используем key вместо rank
+            if (companies[i].rank == found->key) { 
                 printCompany(companies[i]); // Поиск компании по рангу в исходном массиве
                 break;
             }
@@ -523,10 +526,10 @@ void searchCompanyByName(string key) { // Поиск компании по на�
     if (found != nullptr) {
         cout << "\nКомпания найдена (итеративный поиск):\n";
 
-        printCompany(companies[found->number]); // Доступ к данным через индекс
+        printCompany(companies[found->number]); // Через индексы
 
         /*for (int i = 0; i < currentSize; i++) {
-            if (companies[i].name == found->key) { // Используем key вместо name
+            if (companies[i].name == found->key) {
                 printCompany(companies[i]);
                 break;
             }
