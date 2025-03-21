@@ -206,7 +206,7 @@ void yearDelete(IndexYear* indexArray, int year) { // ИСПРАВЛЕНИЕ 2
             return;
         }
     }
-    cout << "Компания с указанным годом основания не найдена.\n"; 
+    cout << "Компания с указанным годом основания не найдена.\n";
     }*/
 }
 
@@ -582,7 +582,6 @@ int main() {
             }
             else {
                 clearIndex();
-                IndexCapital capitalIndex[maxSize];
                 buildIndexDoubleDown(capitalIndex);
                 capitalDelete(capitalIndex);
                 break;
@@ -599,9 +598,9 @@ int main() {
                 cin >> year;
 
                 clearIndex();
-                IndexYear indexArray[maxSize];
-                buildIndexInt(indexArray);
-                yearDelete(indexArray, year);
+                //IndexYear yearIndex[maxSize];
+                buildIndexInt(yearIndex);
+                yearDelete(yearIndex, year);
                 break;
             }
         case 7:
@@ -616,9 +615,9 @@ int main() {
                 cin >> year;
 
                 clearIndex();
-                IndexYear indexArray[maxSize];
-                buildIndexInt(indexArray);
-                yearRecursiveSearch(indexArray, 0, currentSize - 1, year);
+                //IndexYear yearIndex[maxSize];
+                buildIndexInt(yearIndex);
+                yearRecursiveSearch(yearIndex, 0, currentSize - 1, year);
                 break;
             }
         case 8:
@@ -633,9 +632,9 @@ int main() {
                 cin >> capital;
 
                 clearIndex();
-                IndexCapital indexArray[maxSize];
-                buildIndexDoubleDown(indexArray);
-                capitalIterativeSearch(indexArray, capital);
+                //IndexCapital capitalIndex[maxSize];
+                buildIndexDoubleDown(capitalIndex);
+                capitalIterativeSearch(capitalIndex, capital);
                 break;
             }
         case 9:
@@ -649,9 +648,8 @@ int main() {
                 cin >> year;
 
                 clearIndex();
-                IndexYear indexArray[maxSize];
-                buildIndexInt(indexArray);
-                editCompany(indexArray, year);
+                buildIndexInt(yearIndex);
+                editCompany(yearIndex, year);
                 break;
             }
         case 10:
@@ -665,9 +663,8 @@ int main() {
                 cin >> capital;
 
                 clearIndex();
-                IndexCapital indexArray[maxSize];
-                buildIndexDoubleDown(indexArray);
-                editCompanyByCapital(indexArray, capital);
+                buildIndexDoubleDown(capitalIndex);
+                editCompanyByCapital(capitalIndex, capital);
                 break;
             }
         default:
